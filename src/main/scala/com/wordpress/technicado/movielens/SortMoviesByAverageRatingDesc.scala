@@ -2,6 +2,8 @@ package com.wordpress.technicado.movielens
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
+import Constants._
+import org.apache.log4j.{Level, Logger}
 
 /**
   * This is an RDD based implementation
@@ -9,19 +11,21 @@ import org.apache.spark.{SparkConf, SparkContext}
 object SortMoviesByAverageRatingDesc {
 
   def main(args: Array[String]): Unit = {
-    if(args.length != 2){
-      println("USAGE: spark-submit --class com.wordpress.technicado.movielens.LowestAndHighestAvgRating " +
-        "--master local[*] jars/movielens_analysis_2.11-0.1.jar " +
-        "/datasets/movielens/ml-100k/u.data /datasets/movielens/ml-100k/u.item")
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    if(args.length != 0){
+      println("USAGE: spark-submit --class com.wordpress.technicado.movielens.SortMoviesByAverageRatingDesc " +
+        "--master local[*] jars/movielens_analysis_2.11-0.1.jar ")
       System.exit(-1)
     }
 
     val sparkConf = new SparkConf().setAppName("SortMoviesByAverageRatingDesc")
     val sc = new SparkContext(sparkConf)
 
-    val inputUData: RDD[String] = sc.textFile(args(0))
+    val avgRating: RDD[(String, Int)] = new MovieRatingAnalysis(sparkContext = sc).averageMovieRating
 
-    // TODO : work in progress
+    println("Movies sorted by average rating are as follows:: ")
+    avgRating.collect.foreach(println)
+
   }
 
 }
